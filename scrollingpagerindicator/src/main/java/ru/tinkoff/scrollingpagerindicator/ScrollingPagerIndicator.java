@@ -27,7 +27,8 @@ import androidx.viewpager2.widget.ViewPager2;
 public class ScrollingPagerIndicator extends View {
 
     @IntDef({RecyclerView.HORIZONTAL, RecyclerView.VERTICAL})
-    public @interface Orientation{}
+    public @interface Orientation {
+    }
 
     private int infiniteDotCount;
 
@@ -70,6 +71,8 @@ public class ScrollingPagerIndicator extends View {
 
     private boolean dotCountInitialized;
 
+    private DrawableCallback mDrawableCallback;
+
     public ScrollingPagerIndicator(Context context) {
         this(context, null);
     }
@@ -80,26 +83,28 @@ public class ScrollingPagerIndicator extends View {
 
     public ScrollingPagerIndicator(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
         TypedArray attributes = context.obtainStyledAttributes(
                 attrs, R.styleable.ScrollingPagerIndicator, defStyleAttr, R.style.ScrollingPagerIndicator);
-        dotColor = attributes.getColor(R.styleable.ScrollingPagerIndicator_spi_dotColor, 0);
-        selectedDotColor = attributes.getColor(R.styleable.ScrollingPagerIndicator_spi_dotSelectedColor, dotColor);
-        dotNormalSize = attributes.getDimensionPixelSize(R.styleable.ScrollingPagerIndicator_spi_dotSize, 0);
-        dotSelectedSize = attributes.getDimensionPixelSize(R.styleable.ScrollingPagerIndicator_spi_dotSelectedSize, 0);
-        int dotMinimumSize = attributes.getDimensionPixelSize(R.styleable.ScrollingPagerIndicator_spi_dotMinimumSize, -1);
-        this.dotMinimumSize = dotMinimumSize <= dotNormalSize ? dotMinimumSize : -1;
+        try {
+            dotColor = attributes.getColor(R.styleable.ScrollingPagerIndicator_spi_dotColor, 0);
+            selectedDotColor = attributes.getColor(R.styleable.ScrollingPagerIndicator_spi_dotSelectedColor, dotColor);
+            dotNormalSize = attributes.getDimensionPixelSize(R.styleable.ScrollingPagerIndicator_spi_dotSize, 0);
+            dotSelectedSize = attributes.getDimensionPixelSize(R.styleable.ScrollingPagerIndicator_spi_dotSelectedSize, 0);
+            int dotMinimumSize = attributes.getDimensionPixelSize(R.styleable.ScrollingPagerIndicator_spi_dotMinimumSize, -1);
+            this.dotMinimumSize = dotMinimumSize <= dotNormalSize ? dotMinimumSize : -1;
 
-        spaceBetweenDotCenters = attributes.getDimensionPixelSize(R.styleable.ScrollingPagerIndicator_spi_dotSpacing, 0) + dotNormalSize;
-        looped = attributes.getBoolean(R.styleable.ScrollingPagerIndicator_spi_looped, false);
-        int visibleDotCount = attributes.getInt(R.styleable.ScrollingPagerIndicator_spi_visibleDotCount, 0);
-        setVisibleDotCount(visibleDotCount);
-        visibleDotThreshold = attributes.getInt(R.styleable.ScrollingPagerIndicator_spi_visibleDotThreshold, 2);
-        orientation = attributes.getInt(R.styleable.ScrollingPagerIndicator_spi_orientation, RecyclerView.HORIZONTAL);
+            spaceBetweenDotCenters = attributes.getDimensionPixelSize(R.styleable.ScrollingPagerIndicator_spi_dotSpacing, 0) + dotNormalSize;
+            looped = attributes.getBoolean(R.styleable.ScrollingPagerIndicator_spi_looped, false);
+            int visibleDotCount = attributes.getInt(R.styleable.ScrollingPagerIndicator_spi_visibleDotCount, 0);
+            setVisibleDotCount(visibleDotCount);
+            visibleDotThreshold = attributes.getInt(R.styleable.ScrollingPagerIndicator_spi_visibleDotThreshold, 2);
+            orientation = attributes.getInt(R.styleable.ScrollingPagerIndicator_spi_orientation, RecyclerView.HORIZONTAL);
 
-        firstDotDrawable = attributes.getDrawable(R.styleable.ScrollingPagerIndicator_spi_firstDotDrawable);
-        lastDotDrawable = attributes.getDrawable(R.styleable.ScrollingPagerIndicator_spi_lastDotDrawable);
-        attributes.recycle();
+            firstDotDrawable = attributes.getDrawable(R.styleable.ScrollingPagerIndicator_spi_firstDotDrawable);
+            lastDotDrawable = attributes.getDrawable(R.styleable.ScrollingPagerIndicator_spi_lastDotDrawable);
+        } finally {
+            attributes.recycle();
+        }
 
         paint = new Paint();
         paint.setAntiAlias(true);
@@ -419,6 +424,10 @@ public class ScrollingPagerIndicator extends View {
         invalidate();
     }
 
+    public void setDrawableCallback(DrawableCallback callback) {
+        mDrawableCallback = callback;
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // Width
@@ -491,8 +500,8 @@ public class ScrollingPagerIndicator extends View {
         }
 
         // Some empirical coefficients
-        float scaleDistance = (spaceBetweenDotCenters + (dotSelectedSize - dotNormalSize) / 2) * 0.7f;
-        float smallScaleDistance = dotSelectedSize / 2;
+        float scaleDistance = (spaceBetweenDotCenters + (dotSelectedSize - dotNormalSize) / 2f) * 0.7f;
+        float smallScaleDistance = dotSelectedSize / 2f;
         float centerScaleDistance = 6f / 7f * spaceBetweenDotCenters;
 
         int firstVisibleDotPos = (int) (visibleFramePosition - firstDotOffset) / spaceBetweenDotCenters;
@@ -561,12 +570,16 @@ public class ScrollingPagerIndicator extends View {
 
                 paint.setColor(calculateDotColor(scale));
                 final Drawable dotDrawable;
-                if (i == firstVisibleDotPos) {
-                    dotDrawable = firstDotDrawable;
-                } else if (i == lastVisibleDotPos) {
-                    dotDrawable = lastDotDrawable;
+                if (mDrawableCallback != null) {
+                    dotDrawable = mDrawableCallback.getDrawable(i);
                 } else {
-                    dotDrawable = null;
+                    if (i == firstVisibleDotPos) {
+                        dotDrawable = firstDotDrawable;
+                    } else if (i == lastVisibleDotPos) {
+                        dotDrawable = lastDotDrawable;
+                    } else {
+                        dotDrawable = null;
+                    }
                 }
                 if (dotDrawable != null) {
                     if (orientation == LinearLayoutManager.HORIZONTAL) {
@@ -589,16 +602,9 @@ public class ScrollingPagerIndicator extends View {
                     if (autoRtl && isRtl()) {
                         cx = getWidth() - cx;
                     }
-
-                    canvas.drawCircle(cx,
-                            getMeasuredHeight() / 2,
-                            diameter / 2,
-                            paint);
+                    canvas.drawCircle(cx, getMeasuredHeight() / 2f, diameter / 2, paint);
                 } else {
-                    canvas.drawCircle(getMeasuredWidth() / 2,
-                            dot - visibleFramePosition,
-                            diameter / 2,
-                            paint);
+                    canvas.drawCircle(getMeasuredWidth() / 2f, dot - visibleFramePosition, diameter / 2, paint);
                 }
             }
         }
@@ -636,7 +642,7 @@ public class ScrollingPagerIndicator extends View {
             return;
         }
 
-        firstDotOffset = looped && this.itemCount > visibleDotCount ? 0 : dotSelectedSize / 2;
+        firstDotOffset = looped && this.itemCount > visibleDotCount ? 0 : dotSelectedSize / 2f;
         visibleFrameWidth = (visibleDotCount - 1) * spaceBetweenDotCenters + dotSelectedSize;
 
         requestLayout();
@@ -655,7 +661,7 @@ public class ScrollingPagerIndicator extends View {
         if (itemCount <= visibleDotCount) {
             // Without scroll
             visibleFramePosition = 0;
-        } else if (!looped && itemCount > visibleDotCount) {
+        } else if (!looped) {
             // Not looped with scroll
             float center = getDotOffsetAt(pos) + spaceBetweenDotCenters * offset;
             visibleFramePosition = center - visibleFrameWidth / 2;
@@ -726,5 +732,10 @@ public class ScrollingPagerIndicator extends View {
          * Here you should unregister all callbacks previously added to pager and adapter
          */
         void detachFromPager();
+    }
+
+    public interface DrawableCallback {
+
+        Drawable getDrawable(int position);
     }
 }

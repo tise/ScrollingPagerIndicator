@@ -2,7 +2,7 @@
 <resources>
     <style name="ScrollingPagerIndicator">
         <item name="spi_dotColor">@android:color/darker_gray</item>
-        <item name="spi_dotSelectedColor">@android:color/darker_gray</item>
+        <item name="spi_dotSelectedColor">@android:color/black</item>
         <item name="spi_dotSize">6dp</item>
         <item name="spi_dotSelectedSize">10dp</item>
         <item name="spi_dotSpacing">8dp</item>

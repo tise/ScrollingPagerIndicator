@@ -13,7 +13,7 @@ Supports ViewPager, RecyclerView and attaching to custom pagers.
 ## Getting started
 Add dependency to Gradle script:
 ```Groovy
-implementation "ru.tinkoff.scrollingpagerindicator:scrollingpagerindicator:x.x.x"
+implementation "om.github.tise:ScrollingPagerIndicator:x.x.x"
 ```
 ## Attach to ViewPager
 1. Ensure that you have ViewPager in dependencies:

@@ -46,6 +46,8 @@ public class ScrollingPagerIndicator extends View {
     private float firstDotOffset;
     private SparseArray<Float> dotScale;
 
+    private boolean scaleCornerDrawable;
+
     private int itemCount;
 
     private final Paint paint;
@@ -102,6 +104,7 @@ public class ScrollingPagerIndicator extends View {
 
             firstDotDrawable = attributes.getDrawable(R.styleable.ScrollingPagerIndicator_spi_firstDotDrawable);
             lastDotDrawable = attributes.getDrawable(R.styleable.ScrollingPagerIndicator_spi_lastDotDrawable);
+            scaleCornerDrawable = attributes.getBoolean(R.styleable.ScrollingPagerIndicator_spi_scaleCornerDrawable, true);
         } finally {
             attributes.recycle();
         }
@@ -583,15 +586,29 @@ public class ScrollingPagerIndicator extends View {
                 }
                 if (dotDrawable != null) {
                     if (orientation == LinearLayoutManager.HORIZONTAL) {
-                        dotDrawable.setBounds((int) (dot - visibleFramePosition - dotSelectedSize / 2),
-                                getMeasuredHeight() / 2 - dotSelectedSize / 2,
-                                (int) (dot - visibleFramePosition + dotSelectedSize / 2),
-                                getMeasuredHeight() / 2 + dotSelectedSize / 2);
+                        if (scaleCornerDrawable) {
+                            dotDrawable.setBounds((int) (dot - visibleFramePosition - diameter / 2),
+                                    (int) (getMeasuredHeight() / 2 - diameter / 2),
+                                    (int) (dot - visibleFramePosition + diameter / 2),
+                                    (int) (getMeasuredHeight() / 2 + diameter / 2));
+                        } else {
+                            dotDrawable.setBounds((int) (dot - visibleFramePosition - dotSelectedSize / 2),
+                                    getMeasuredHeight() / 2 - dotSelectedSize / 2,
+                                    (int) (dot - visibleFramePosition + dotSelectedSize / 2),
+                                    getMeasuredHeight() / 2 + dotSelectedSize / 2);
+                        }
                     } else {
-                        dotDrawable.setBounds(getMeasuredWidth() / 2 - dotSelectedSize / 2,
-                                (int) (dot - visibleFramePosition - dotSelectedSize / 2),
-                                getMeasuredWidth() / 2 + dotSelectedSize / 2,
-                                (int) (dot - visibleFramePosition + dotSelectedSize / 2));
+                        if (scaleCornerDrawable) {
+                            dotDrawable.setBounds((int) (getMeasuredWidth() / 2 - diameter / 2),
+                                    (int) (dot - visibleFramePosition - diameter / 2),
+                                    (int) (getMeasuredWidth() / 2 + diameter / 2),
+                                    (int) (dot - visibleFramePosition + diameter / 2));
+                        } else {
+                            dotDrawable.setBounds(getMeasuredWidth() / 2 - dotSelectedSize / 2,
+                                    (int) (dot - visibleFramePosition - dotSelectedSize / 2),
+                                    getMeasuredWidth() / 2 + dotSelectedSize / 2,
+                                    (int) (dot - visibleFramePosition + dotSelectedSize / 2));
+                        }
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         dotDrawable.setTint(paint.getColor());

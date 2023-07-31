@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <attr name="scrollingPagerIndicatorStyle"/>
+    <attr name="scrollingPagerIndicatorStyle" />
 
     <declare-styleable name="ScrollingPagerIndicator">
         <attr name="spi_dotColor" format="color" />
@@ -19,5 +19,6 @@
         </attr>
         <attr name="spi_firstDotDrawable" format="reference" />
         <attr name="spi_lastDotDrawable" format="reference" />
+        <attr name="spi_scaleCornerDrawable" format="boolean" />
     </declare-styleable>
 </resources>

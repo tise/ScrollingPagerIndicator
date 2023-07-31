@@ -13,7 +13,7 @@ Supports ViewPager, RecyclerView and attaching to custom pagers.
 ## Getting started
 Add dependency to Gradle script:
 ```Groovy
-implementation "com.github.tise:ScrollingPagerIndicator:x.x.x"
+implementation "com.github.tise:ScrollingPagerIndicator:latest-release-tag"
 ```
 ## Attach to ViewPager
 1. Ensure that you have ViewPager in dependencies:
@@ -122,7 +122,8 @@ indicator.attachToPager(pager, new ViewPagerAttacher());
 | spi_dotMinimumSize      | The minimum dot size for the corner dots. This size is lower or equal to ```spi_dotSize``` and greater or equal to the internal calculation for the corner dots.                                                                              | Internal calculation based on ```spi_dotSize```, ```spi_dotSelectedSize``` and ```spi_dotSpacing``` |
 | spi_orientation         | Visible orientation of the dots                                                                                                                                                                                                               | LinearLayoutManager.HORIZONTAL                                                                      |
 | spi_firstDotDrawable    | Custom drawable of the first dot, color is tinted and size is changed like standard dots. If first dot is also the last one then this value is taken into account.                                                                            | `null`                                                                                              |
-| spi_lastDotDrawable     | Custom drawable of the last dot, color is tinted and size is changed like standard dots.                                                                                                                                                 | `null`                                                                                              |
+| spi_lastDotDrawable     | Custom drawable of the last dot, color is tinted and size is changed like standard dots.                                                                                                                                                      | `null`                                                                                              |
+| spi_spi_scaleCornerDrawable                    | Whether the minimum size for the corner drawable should be applied or not.                                                                                                                                                                    | ```true```                                                                                          |
 
 ## TODO
 1. Some extreme customizations may work incorrect.

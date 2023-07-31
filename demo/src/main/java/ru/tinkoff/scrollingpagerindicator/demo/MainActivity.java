@@ -2,6 +2,7 @@ package ru.tinkoff.scrollingpagerindicator.demo;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         pager.setAdapter(pagerAdapter);
 
         ScrollingPagerIndicator pagerIndicator = findViewById(R.id.pager_indicator);
+        pagerIndicator.setDrawableCallback(position -> ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_circle));
         pagerIndicator.attachToPager(pager);
 
         // Setup ViewPager2 with indicator
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setPadding(screenWidth / 3, 0, screenWidth / 3, 0);
 
         ScrollingPagerIndicator recyclerIndicator = findViewById(R.id.recycler_indicator);
+        recyclerIndicator.setDrawableCallback(position -> ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_circle));
         ScrollingPagerIndicator customRecyclerIndicator = findViewById(R.id.custom_recycler_indicator);
         // Consider page in the middle current
         recyclerIndicator.attachToRecyclerView(recyclerView);
